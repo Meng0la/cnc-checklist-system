@@ -136,67 +136,6 @@ por `Listen <nova-porta>` em `D:\xampp\apache\conf\httpd.conf`, reinicie o Apach
 Control Panel e repita a liberação de firewall com a nova porta. **Mudar a porta do Apache
 aqui não afeta nenhum outro sistema da empresa** — porta é por máquina, não é algo global.
 
-### 4.2 pfSense — só é necessário se os operadores estiverem em outra VLAN/sub-rede
-
-O pfSense só entra em ação quando o tráfego **atravessa** ele, ou seja, quando o
-dispositivo do operador está em uma rede/VLAN diferente da do servidor. Duas situações:
-
-**A) Todo mundo está na mesma rede/VLAN (mesmo `192.168.1.0/24`)**
-Nesse caso o tráfego entre os PCs/tablets e o servidor nem passa pelo pfSense — ele
-trafega direto pelo switch. Não é preciso mexer em nada no pfSense. Só confirme que não
-há "isolamento de clientes" (client/AP isolation) ativado no Wi-Fi, se o acesso for via
-Wi-Fi — isso isolaria os dispositivos entre si mesmo na mesma rede.
-
-**B) O servidor está em uma VLAN e os operadores em outra**
-(ex.: servidor em `192.168.1.0/24` e chão de fábrica em outra faixa, tipo
-`192.168.20.0/24`) — aí sim o pfSense precisa de uma regra explícita:
-
-1. No pfSense: **Firewall → Rules**.
-2. Selecione a aba da **interface/VLAN de onde os operadores vão acessar** (não a do
-   servidor — a regra fica do lado de quem está *pedindo* o acesso).
-3. **Add** (nova regra):
-   - Action: **Pass**
-   - Protocol: **TCP**
-   - Source: rede da VLAN dos operadores (ou "any" se quiser liberar geral)
-   - Destination: **Single host** → `192.168.1.50`
-   - Destination port range: **8080**
-   - Description: "Acesso ao AeroCheck (XAMPP)"
-4. **Save** e depois **Apply Changes**.
-
-Isso libera só o necessário (host e porta específicos), sem abrir a rede inteira.
-
-**Não é necessário** configurar NAT/port forward de WAN — este sistema é para uso
-**interno da rede local**, não deve ser exposto para a internet. Se algum dia for preciso
-acesso remoto de fora da fábrica, isso deve passar por VPN, nunca por port-forward direto
-da WAN do pfSense para o servidor.
-
-### 4.3 Sobre o AnyDesk
-
-O AnyDesk é só a forma de **você** (administrador) controlar aquele PC remotamente para
-fazer essas configurações — ele não tem relação nenhuma com o tráfego dos operadores até
-o sistema. Depois que Firewall do Windows + (se necessário) pfSense estiverem liberados,
-qualquer dispositivo na rede autorizada acessa `http://192.168.1.50:8080/aerocheck/`
-normalmente, mesmo com o AnyDesk fechado.
-
-### 4.4 IP fixo e serviços automáticos
-
-- Confirme que `192.168.1.50` é um **IP fixo/reservado** para essa máquina (reserva de
-  DHCP no pfSense, ou IP estático na placa de rede). Se for IP dinâmico, ele pode mudar e
-  quebrar o acesso de todo mundo.
-- No XAMPP Control Panel, deixe Apache e MySQL configurados para iniciar como **serviço do
-  Windows** (botão "Services" no XAMPP Control Panel → instalar como serviço), assim o
-  sistema volta sozinho se a máquina reiniciar, sem precisar abrir o painel manualmente via
-  AnyDesk toda vez.
-
-### 4.5 Testando de outro dispositivo
-
-De um celular/tablet/PC **na rede autorizada**, abra o navegador em:
-
-```
-http://192.168.1.50:8080/aerocheck/
-```
-
-Se a tela de login aparecer, está tudo certo.
 
 ## 5. Visual (Tailwind CSS)
 
