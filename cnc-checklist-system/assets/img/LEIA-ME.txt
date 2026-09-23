@@ -1,8 +1,0 @@
-Coloque aqui os arquivos de logo da sua empresa, com estes dois nomes exatos:
-
-  logo.png   -> o logotipo horizontal (usado no topo das páginas e na tela de login)
-  icon.png   -> o ícone quadrado/favicon, sem texto
-
-Formato recomendado: PNG com fundo transparente.
-Depois de colocar os arquivos aqui, é só recarregar o sistema no navegador — não precisa
-alterar nenhum código, os caminhos já estão configurados em includes/header.php e login.php.
